@@ -59,13 +59,36 @@ ll mod_factorial(ll num, ll n = MOD)
     return res;
 }
 
-
 ll ncr(ll n, ll r, ll mod = MOD)
 {
     ll inv1 = mod_inv(mod_factorial(r));
     ll inv2 = mod_inv(mod_factorial(n - r));
     ll fact = mod_factorial(n);
     ll ans = fact;
+    ans = mod_mul(ans, inv1);
+    ans = mod_mul(ans, inv2);
+    return ans;
+}
+
+// define size of factorial array
+const ll N = 1e5 + 2;
+ll factorial[N];
+void calcFacts(ll mod = MOD)
+{
+    factorial[0] = 1;
+    for (ll i = 1; i < N; i++)
+        factorial[i] = (factorial[i - 1] * i) % MOD;
+    return;
+}
+
+ll NCR(ll n, ll r, ll mod = MOD)
+{
+    if (n < 0 || r < 0 || n < r)
+        return 0;
+    calcFacts();
+    ll inv1 = mod_inv(factorial[r]);
+    ll inv2 = mod_inv(factorial[n - r]);
+    ll ans = factorial[n];
     ans = mod_mul(ans, inv1);
     ans = mod_mul(ans, inv2);
     return ans;
