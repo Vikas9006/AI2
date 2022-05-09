@@ -1,3 +1,10 @@
-1.  (1 << 32) will give error
+1.
+(1 << 32) will give error
     error : left shift count >= width of type [-Wshift-count-overflow]
-    solution : ((ll)1 << 32) typecast 1 to long long
+    solution : ((ll)1 << 32) or (1ll << 32) 
+    typecast 1 to long long
+
+2.
+LONG_LONG_MAX instead of INT_MAX
+
+3.
