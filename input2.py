@@ -11,15 +11,19 @@ import pdb
 
 
 # initialising number of backtracks as 0
-number_backtracks=0
+number_backtracks = 0
+
 
 def firstSum(n):
     return n * (n + 1) / 2
+
 
 def lastSum(n):
     return n * (19 - n) / 2
 
 # Function for getting lowest and highest values for given sum and number of cells
+
+
 def minMax(Sum, numCells):
     high = Sum - firstSum(numCells - 1)
     high = min(9, high)
@@ -29,6 +33,8 @@ def minMax(Sum, numCells):
     return (low, high)
 
 # Function to get dimension by taking a input from user
+
+
 def getDimension():
     dimesionString = input()
     flag = 0
@@ -40,6 +46,7 @@ def getDimension():
             flag = 1
     dimension = int(n2)
     return dimension
+
 
 def getRowContent(row):
     comma = ','
@@ -54,6 +61,7 @@ def getRowContent(row):
     res.append(element)
     return res
 
+
 def parseRowContent(row):
     res = []
     for i in row:
@@ -64,12 +72,14 @@ def parseRowContent(row):
             res.append(element)
     return res
 
+
 def crossProduct(possibleVals, listXij):
     newDomain = []
     for ele in listXij:
         newDomain.append(possibleVals[ele])
     res = list(itertools.product(*newDomain))
     return res
+
 
 def isSatisfySum(tupleXij, Sum):
     # Sum is equal to given sum and all are distinct
@@ -84,6 +94,7 @@ def isSatisfySum(tupleXij, Sum):
 #     # A and B are not neighbours
 #     # print("not neighbours")
 #     return True
+
 
 def constraint(A, a, B, b):
     if isinstance(A[0], tuple) and isinstance(B[0], int):
@@ -107,6 +118,8 @@ def constraint(A, a, B, b):
 
 # Calculate ui
 # mark constraints between xij and ui
+
+
 def binarization(Sum, ulocation, listXij):
     ui = []
     domains[ulocation] = []
@@ -178,7 +191,7 @@ for i in range(0, rows):
             variable = (i, j)
             variables.append(variable)
             domains[variable] = copy.copy(allDigits)
-        
+
         elif vertical[i][j] != -1 or horizontal[i][j] != -1:
             if vertical[i][j] != -1:
                 u_variable = ((i, j), True)
@@ -188,7 +201,7 @@ for i in range(0, rows):
                 for k in range(i+1, rows):
                     if vertical[k][j] != 0:
                         break
-                        
+
                     neighbour_box = (k, j)
                     if u_variable not in neighbours:
                         neighbours[u_variable] = []
@@ -207,7 +220,7 @@ for i in range(0, rows):
                 for k in range(j+1, columns):
                     if vertical[i][k] != 0:
                         break
-                        
+
                     neighbour_box = (i, k)
                     if u_variable not in neighbours:
                         neighbours[u_variable] = []
@@ -276,12 +289,14 @@ for i in range(0, rows):
 for x, r in enumerate(horizontal):
     for y, c in enumerate(r):
         if c > 0:
-            binarization(horizontal[x][y] ,((x, y), False), neighbours[((x, y), False)])
+            binarization(horizontal[x][y], ((x, y), False),
+                         neighbours[((x, y), False)])
 
 for x, r in enumerate(vertical):
     for y, c in enumerate(r):
         if c > 0:
-            binarization(vertical[x][y] ,((x, y), True), neighbours[((x, y), True)])
+            binarization(vertical[x][y], ((x, y), True),
+                         neighbours[((x, y), True)])
 # print(domains)
 # print(u_variables_h)
 # print(u_variables_v)
@@ -308,6 +323,8 @@ neighbours  === cells that are in same row or column having an constraint with g
 """
 
 # *****************************************************************************
+
+
 class csp():
 
     def __init__(self, variables, u_variables, domains, neighbours, constraints) -> None:
@@ -357,7 +374,8 @@ class csp():
         """Make sure we can prune values from domains. (We want to pay
         for this only if we use it.)"""
         if self.curr_domains is None:
-            self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
+            self.curr_domains = {
+                v: list(self.domains[v]) for v in self.variables}
 
     def restore(self, removals):
         """Undo a supposition and all inferences from it."""
@@ -372,14 +390,17 @@ class csp():
 
     def getDomainValue(self, var):
         return self.domains[var]
-    
+
     def getNeighbours(self, var):
         return self.neighbours[var]
+
+
 """
 constraints 
     
 """
 # *******************************************************************************
+
 
 def forward_checking(csp, var, value, assignment, removals):
     """Prune neighbor values inconsistent with var=value."""
@@ -392,6 +413,7 @@ def forward_checking(csp, var, value, assignment, removals):
             if not csp.curr_domains[B]:
                 return False
     return True
+
 
 def revise(csp, Xi, Xj, removals, checks=0):
     """Return true if we remove a value."""
@@ -411,6 +433,7 @@ def revise(csp, Xi, Xj, removals, checks=0):
             revised = True
     return revised, checks
 
+
 def AC3(csp, queue=None, removals=None):
     """[Figure 6.3]"""
     if queue is None:
@@ -428,10 +451,13 @@ def AC3(csp, queue=None, removals=None):
                     queue.add((Xk, Xi))
     return True, checks  # CSP is satisfiable
 
+
 def ORDER_DOMAIN_VALUES(var, assignment, csp):
     return csp.domains[var]
 
 # Function iterates over variables and which one is not assigned, return that element
+
+
 def SELECT_UNASSIGNED_VARIABLE(assignment, csp):
     for var in csp.variables:
         if var not in assignment:
@@ -490,8 +516,10 @@ def SELECT_UNASSIGNED_VARIABLE(assignment, csp):
 #     # print(csp.assign_count)
 #     return None
 
+
 def NO_INFERENCE(csp, var, value, assignment, removals):
     return truediv
+
 
 def RECURSIVE_BACKTRACKING(csp, assignment, select_unassigned_variable, order_domain_values, inference):
 
@@ -504,16 +532,19 @@ def RECURSIVE_BACKTRACKING(csp, assignment, select_unassigned_variable, order_do
             csp.assign(var, value, assignment)
             removals = csp.suppose(var, value)
             if inference(csp, var, value, assignment, removals):
-                result = RECURSIVE_BACKTRACKING(csp, assignment, select_unassigned_variable, order_domain_values, inference)
+                result = RECURSIVE_BACKTRACKING(
+                    csp, assignment, select_unassigned_variable, order_domain_values, inference)
                 if result is not None:
                     return result
             csp.restore(removals)
     csp.unassign(var, assignment)
     return None
 
+
 def BACKTRACKING_SEARCH(csp, select_unassigned_variable=SELECT_UNASSIGNED_VARIABLE,
                         order_domain_values=ORDER_DOMAIN_VALUES, inference=forward_checking):
     return RECURSIVE_BACKTRACKING(csp, {}, select_unassigned_variable, order_domain_values, inference)
+
 
 def mac(csp, var, value, assignment, removals, constraint_propagation=AC3):
     """Maintain arc consistency."""
@@ -521,6 +552,7 @@ def mac(csp, var, value, assignment, removals, constraint_propagation=AC3):
 # *****************************************************************************
 
 # print(domains)
+
 
 CSP = csp(variables, u_variables, domains, neighbours, constraint)
 
