@@ -1,29 +1,32 @@
 import itertools
-from operator import truediv
 from time import time
-from tkinter import E
 from typing import Tuple
 from xml import dom
 import copy
 import pdb
 
-# from csp import *
-
-
-# initialising number of backtracks as 0
-number_backtracks = 0
-
+backtrack_count = 0
+horizontal = []
+vertical = []
+constraintList = []
+variables = []
+u_variables = []
+neighbours = {}
+domains = {}
+u_variables_h = []
+u_variables_v = []
+board = []
+horizontal_ans = []
+vertical_ans = []
+filename = "./Solution.txt"
 
 def firstSum(n):
     return n * (n + 1) / 2
-
 
 def lastSum(n):
     return n * (19 - n) / 2
 
 # Function for getting lowest and highest values for given sum and number of cells
-
-
 def minMax(Sum, numCells):
     high = Sum - firstSum(numCells - 1)
     high = min(9, high)
@@ -33,8 +36,6 @@ def minMax(Sum, numCells):
     return (low, high)
 
 # Function to get dimension by taking a input from user
-
-
 def getDimension():
     dimesionString = input()
     flag = 0
@@ -46,7 +47,6 @@ def getDimension():
             flag = 1
     dimension = int(n2)
     return dimension
-
 
 def getRowContent(row):
     comma = ','
@@ -61,7 +61,6 @@ def getRowContent(row):
     res.append(element)
     return res
 
-
 def parseRowContent(row):
     res = []
     for i in row:
@@ -72,14 +71,12 @@ def parseRowContent(row):
             res.append(element)
     return res
 
-
 def crossProduct(possibleVals, listXij):
     newDomain = []
     for ele in listXij:
         newDomain.append(possibleVals[ele])
     res = list(itertools.product(*newDomain))
     return res
-
 
 def isSatisfySum(tupleXij, Sum):
     # Sum is equal to given sum and all are distinct
@@ -94,7 +91,6 @@ def isSatisfySum(tupleXij, Sum):
 #     # A and B are not neighbours
 #     # print("not neighbours")
 #     return True
-
 
 def constraint(A, a, B, b):
     if isinstance(A[0], tuple) and isinstance(B[0], int):
@@ -118,8 +114,6 @@ def constraint(A, a, B, b):
 
 # Calculate ui
 # mark constraints between xij and ui
-
-
 def binarization(Sum, ulocation, listXij):
     ui = []
     domains[ulocation] = []
@@ -147,17 +141,6 @@ allDigits = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 rows = getDimension()
 columns = getDimension()
 waste = input()
-horizontal = []
-vertical = []
-constraintList = []
-# domains:dict[tuple, list] = {}
-variables = []
-u_variables = []
-neighbours = {}
-domains = {}
-u_variables_h = []
-u_variables_v = []
-board = []
 
 for i in range(0, rows):
     row = input()
@@ -191,17 +174,16 @@ for i in range(0, rows):
             variable = (i, j)
             variables.append(variable)
             domains[variable] = copy.copy(allDigits)
-
+        
         elif vertical[i][j] != -1 or horizontal[i][j] != -1:
             if vertical[i][j] != -1:
                 u_variable = ((i, j), True)
                 variables.append(u_variable)
-                # to be removed
-                counter = 0
+
                 for k in range(i+1, rows):
                     if vertical[k][j] != 0:
                         break
-
+                        
                     neighbour_box = (k, j)
                     if u_variable not in neighbours:
                         neighbours[u_variable] = []
@@ -210,17 +192,15 @@ for i in range(0, rows):
                     if neighbour_box not in neighbours:
                         neighbours[neighbour_box] = []
                     neighbours[neighbour_box].append(u_variable)
-                counter += 1
 
             if horizontal[i][j] != -1:
                 u_variable = ((i, j), False)
                 variables.append(u_variable)
-                # to be removed
-                counter = 0
+
                 for k in range(j+1, columns):
                     if vertical[i][k] != 0:
                         break
-
+                        
                     neighbour_box = (i, k)
                     if u_variable not in neighbours:
                         neighbours[u_variable] = []
@@ -229,74 +209,16 @@ for i in range(0, rows):
                     if neighbour_box not in neighbours:
                         neighbours[neighbour_box] = []
                     neighbours[neighbour_box].append(u_variable)
-                counter += 1
-
-# Calculating variables and u_variables
-# for x, r in enumerate(horizontal):
-#     for y, c in enumerate(r):
-#         if c == 0 and (x, y) not in variables:
-#             variables.append((x, y))
-#             domains[(x, y)] = copy.copy(allDigits)
-            # neighbours[(x, y)] = []
-
-# for x, r in enumerate(vertical):
-#     for y, c in enumerate(r):
-#         if c > 0:
-#             for i in range(x + 1, len(vertical)):
-#                 if horizontal[i][y] == 0:
-#                     neighbours[((x, y), True)].append((i, y))
-#                     neighbours[(i, y)].append(((x, y), True))
-#                 else:
-#                     break
-
-# for x, r in enumerate(vertical):
-#     for y, c in enumerate(r):
-#         if c > 0:
-#             u_variables_v.append(((x, y), True))
-#             neighbours[((x, y), True)] = []
-
-# i = 0
-# j = 0
-# while i < len(u_variables_h) or j < len(u_variables_v):
-#     if i < len(u_variables_h):
-#         u_variables.append(u_variables_h[i])
-#         i += 1
-#     if j < len(u_variables_v):
-#         u_variables.append(u_variables_v[j])
-#         j += 1
-
-# for x, r in enumerate(horizontal):
-#     for y, c in enumerate(r):
-#         if c > 0:
-#             for i in range(y + 1, len(r)):
-#                 if horizontal[x][i] == 0:
-#                     neighbours[((x, y), False)].append((x, i))
-#                     neighbours[(x, i)].append(((x, y), False))
-#                 else:
-#                     break
-
-# for x, r in enumerate(vertical):
-#     for y, c in enumerate(r):
-#         if c > 0:
-#             for i in range(x + 1, len(vertical)):
-#                 if horizontal[i][y] == 0:
-#                     neighbours[((x, y), True)].append((i, y))
-#                     neighbours[(i, y)].append(((x, y), True))
-#                 else:
-#                     break
-
 # Calculating variables (ui)
 for x, r in enumerate(horizontal):
     for y, c in enumerate(r):
         if c > 0:
-            binarization(horizontal[x][y], ((x, y), False),
-                         neighbours[((x, y), False)])
+            binarization(horizontal[x][y] ,((x, y), False), neighbours[((x, y), False)])
 
 for x, r in enumerate(vertical):
     for y, c in enumerate(r):
         if c > 0:
-            binarization(vertical[x][y], ((x, y), True),
-                         neighbours[((x, y), True)])
+            binarization(vertical[x][y] ,((x, y), True), neighbours[((x, y), True)])
 # print(domains)
 # print(u_variables_h)
 # print(u_variables_v)
@@ -323,8 +245,6 @@ neighbours  === cells that are in same row or column having an constraint with g
 """
 
 # *****************************************************************************
-
-
 class csp():
 
     def __init__(self, variables, u_variables, domains, neighbours, constraints) -> None:
@@ -374,8 +294,7 @@ class csp():
         """Make sure we can prune values from domains. (We want to pay
         for this only if we use it.)"""
         if self.curr_domains is None:
-            self.curr_domains = {
-                v: list(self.domains[v]) for v in self.variables}
+            self.curr_domains = {v: list(self.domains[v]) for v in self.variables}
 
     def restore(self, removals):
         """Undo a supposition and all inferences from it."""
@@ -390,17 +309,14 @@ class csp():
 
     def getDomainValue(self, var):
         return self.domains[var]
-
+    
     def getNeighbours(self, var):
         return self.neighbours[var]
-
-
 """
 constraints 
     
 """
 # *******************************************************************************
-
 
 def forward_checking(csp, var, value, assignment, removals):
     """Prune neighbor values inconsistent with var=value."""
@@ -414,8 +330,7 @@ def forward_checking(csp, var, value, assignment, removals):
                 return False
     return True
 
-
-def revise(csp, Xi, Xj, removals, checks=0):
+def Remove_Inconsistent_Values(csp, Xi, Xj, removals):
     """Return true if we remove a value."""
     revised = False
     for x in csp.curr_domains[Xi][:]:
@@ -425,39 +340,33 @@ def revise(csp, Xi, Xj, removals, checks=0):
         for y in csp.curr_domains[Xj]:
             if csp.constraints(Xi, x, Xj, y):
                 conflict = False
-            checks += 1
             if not conflict:
                 break
         if conflict:
             csp.prune(Xi, x, removals)
             revised = True
-    return revised, checks
+    return revised
 
-
-def AC3(csp, queue=None, removals=None):
-    """[Figure 6.3]"""
+def AC_3(csp, queue=None, removals=None):
     if queue is None:
         queue = {(Xi, Xk) for Xi in csp.variables for Xk in csp.neighbours[Xi]}
     csp.support_pruning()
-    checks = 0
     while queue:
         (Xi, Xj) = queue.pop()
-        revised, checks = revise(csp, Xi, Xj, removals, checks)
+        revised = Remove_Inconsistent_Values(csp, Xi, Xj, removals)
         if revised:
             if not csp.curr_domains[Xi]:
-                return False, checks  # CSP is inconsistent
+                return False
             for Xk in csp.neighbours[Xi]:
                 if Xk != Xj:
                     queue.add((Xk, Xi))
-    return True, checks  # CSP is satisfiable
-
+    # CSP is satisfiable
+    return True
 
 def ORDER_DOMAIN_VALUES(var, assignment, csp):
     return csp.domains[var]
 
 # Function iterates over variables and which one is not assigned, return that element
-
-
 def SELECT_UNASSIGNED_VARIABLE(assignment, csp):
     for var in csp.variables:
         if var not in assignment:
@@ -465,94 +374,40 @@ def SELECT_UNASSIGNED_VARIABLE(assignment, csp):
     # All element are assigned, return None
     return None
 
-# def RECURSIVE_BACKTRACKING(assignment, csp):
-#     # pdb.set_trace()
-#     print("Assignment")
-#     if csp.assign_count == len(csp.u_variables):
-#         return assignment
-#     print(assignment)
-#     print()
-#     var = SELECT_UNASSIGNED_VARIABLE(assignment,csp)
-#     # print(var)
-#     # print(var, csp.getDomainValue(var), csp.getNeighbours(var))
-#     # print(assignment)
-#     # for value in ORDER_DOMAIN_VALUES(var, assignment, csp):
-#     # print("Domain =", csp.domains[var])
-#     # if var == ((0, 1), True):
-#         # pdb.set_trace()
-#     for value in csp.domains[var]:
-#         if var in assignment:
-#             assignment.pop(var)
-#             for neighbour in csp.neighbours[var]:
-#                 if neighbour in assignment:
-#                     for neighbourOfNeighbour in csp.neighbours[neighbour]:
-#                         if (neighbourOfNeighbour != var) and (neighbourOfNeighbour not in assignment):
-#                             assignment.pop(neighbour)
-#         # print("Value taken =", value)
-#         if csp.count_conflicts(var, value, assignment) == 0:
-#             csp.assign(var, value, assignment)
-#             # print(var, value)
-#             # Assign each neighbour also
-#             for i, neighbour in enumerate(csp.neighbours[var]):
-#                 # if neighbour not in assignment:
-#                 assignment[neighbour] = value[i]
-
-#             result = RECURSIVE_BACKTRACKING(assignment, csp)
-#             # print(var, "recursive function is called", result)
-#             if result is not None:
-#                 return assignment
-#     # print("Removed", var, None)
-#     csp.unAssign(var, assignment)
-#     for neighbour in csp.neighbours[var]:
-#         present = False
-#         for neighbourOfNeighbour in csp.neighbours[neighbour]:
-#             if neighbourOfNeighbour in assignment:
-#                 present = True
-#         if not present:
-#             if neighbour in assignment:
-#                 assignment.pop(neighbour)
-#             # print("Removed", neighbour)
-#     csp.assign_count -= 1
-#     # print(csp.assign_count)
-#     return None
-
-
-def NO_INFERENCE(csp, var, value, assignment, removals):
-    return truediv
-
-
 def RECURSIVE_BACKTRACKING(csp, assignment, select_unassigned_variable, order_domain_values, inference):
-
+    global backtrack_count
     if len(assignment) == len(csp.variables):
         return assignment
-    # print(assignment)
     var = select_unassigned_variable(assignment, csp)
     for value in order_domain_values(var, assignment, csp):
-        if 0 == csp.count_conflicts(var, value, assignment):
+        backtrack_count += 1
+        if csp.count_conflicts(var, value, assignment) == 0:
             csp.assign(var, value, assignment)
             removals = csp.suppose(var, value)
-            if inference(csp, var, value, assignment, removals):
-                result = RECURSIVE_BACKTRACKING(
-                    csp, assignment, select_unassigned_variable, order_domain_values, inference)
+            if inference(csp, var, removals):
+                result = RECURSIVE_BACKTRACKING(csp, assignment, select_unassigned_variable, order_domain_values, inference)
                 if result is not None:
+                    # backtrack_count -= 1
                     return result
             csp.restore(removals)
     csp.unassign(var, assignment)
+    print("Before", backtrack_count)
+    # backtrack_count += 1
+    print("After", backtrack_count)
     return None
 
 
 def BACKTRACKING_SEARCH(csp, select_unassigned_variable=SELECT_UNASSIGNED_VARIABLE,
-                        order_domain_values=ORDER_DOMAIN_VALUES, inference=forward_checking):
+                        order_domain_values=ORDER_DOMAIN_VALUES, inference=lambda x:True):
     return RECURSIVE_BACKTRACKING(csp, {}, select_unassigned_variable, order_domain_values, inference)
 
-
-def mac(csp, var, value, assignment, removals, constraint_propagation=AC3):
+# 
+def mac(csp, var, removals, constraint_propagation=AC_3):
     """Maintain arc consistency."""
     return constraint_propagation(csp, {(X, var) for X in csp.neighbours[var]}, removals)
 # *****************************************************************************
 
 # print(domains)
-
 
 CSP = csp(variables, u_variables, domains, neighbours, constraint)
 
@@ -563,5 +418,50 @@ time_taken = time() - intial_time
 print("Solution")
 print(sol)
 print("Time taken", time_taken)
-print("Total assignments did", CSP.total_assigns)
-print("Total number of assignments did", number_backtracks)
+print("Number of backtracks =",  backtrack_count)
+
+import os, psutil
+process = psutil.Process(os.getpid())
+print((process.memory_info().rss)/(1024*1024))
+
+for i in range(0, rows):
+    vertical_ans.append([])
+    horizontal_ans.append([])
+    for j in range(0, columns):
+        vertical_ans[i].append(None)
+        horizontal_ans[i].append(None)
+        if vertical[i][j] == -1 or vertical[i][j] > 0:
+            vertical_ans[i][j] = vertical[i][j]
+        else:
+            vertical_ans[i][j] = sol[(i, j)]
+    
+        if horizontal[i][j] == -1 or horizontal[i][j] > 0:
+            horizontal_ans[i][j] = horizontal[i][j]
+        else:
+            horizontal_ans[i][j] = sol[(i, j)]
+
+filepointer = open(filename, "w")
+
+# Writing Horizontal
+print("rows=" + str(rows),file=filepointer)
+print("columns=" + str(columns) ,file=filepointer)
+print("Horizontal",file=filepointer)
+for i in range(0, rows):
+    for j in range(0, columns):
+        if horizontal_ans[i][j] == -1:
+            print("#",end="", file=filepointer)
+        else:
+            print(horizontal_ans[i][j],end="", file=filepointer)
+        if j != columns - 1:
+            print(",", end="",file=filepointer)
+    print(file=filepointer)
+print("Vertical",file=filepointer)
+for i in range(0, rows):
+    for j in range(0, columns):
+        if vertical_ans[i][j] == -1:
+            print("#",end="", file=filepointer)
+        else:
+            print(vertical_ans[i][j],end="", file=filepointer)
+        if j != columns - 1:
+            print(",", end="",file=filepointer)
+    print(file=filepointer)
