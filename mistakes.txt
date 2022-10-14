@@ -8,3 +8,5 @@
 LONG_LONG_MAX instead of INT_MAX
 
 3.
+Don't use double and float like datatypes
+Try to find some alternative method which uses integer like datatypes
